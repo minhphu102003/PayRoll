@@ -50,20 +50,36 @@ export const getEmployees = async (req, res, next) => {
 }
 
 export const updateEmployee = async (req, res) => {
-  const updateEmployee = await Employee.findByIdAndUpdate(
-    req.params.employeeId,
-    req.body,
-    {
-      new: true,
+  try {
+    const updateEmployee = await Employee.findByIdAndUpdate(
+      req.params.employeeId,
+      req.body,
+      {
+        new: true,
+      }
+    );
+    if(updateEmployee !== null){
+      return res.status(204).json({ success: true, data: updateEmployee });
     }
-  );
-  res.status(204).json({success: true, data: updateEmployee});
+    return res.status(404).json({
+      success:false,
+      data: "Employee not found"
+    })
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error });
+  }
 };
 
 export const deleteEmployee = async (req, res) => {
-  const { employeeId } = req.params;
-  await Employee.findByIdAndDelete(employeeId);
-  res.status(204).json({success: true, data: []});
-};
+  try {
+    const { employeeId } = req.params;
+    // Xóa nhân viên
+    await Employee.findByIdAndDelete(employeeId);
 
+    // Trả về phản hồi
+    return res.status(204).json({ success: true, data: {employeeId: employeeId} });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error});
+  }
+};
 
